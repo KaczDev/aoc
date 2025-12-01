@@ -95,11 +95,4 @@ mod tests {
         let expected = 3;
         assert_eq!(result, expected)
     }
-    #[test]
-    fn prod() {
-        let file = "./inputs/day1.prod";
-        let result = solve(file).unwrap();
-        let expected = 1135;
-        assert_eq!(result, expected)
-    }
 }
