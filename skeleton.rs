@@ -4,9 +4,11 @@ use std::{fs, time::Instant};
 type Input<T> = Vec<Vec<T>>;
 
 fn solve(file_name: &str) -> Result<usize> {
+    let mut res = 0;
     let input: Input<char> = read_input(file_name)?;
     println!("{:?}", input);
-    Ok(0)
+
+    Ok(res)
 }
 
 fn read_input(file_name: &str) -> Result<Input<char>> {
