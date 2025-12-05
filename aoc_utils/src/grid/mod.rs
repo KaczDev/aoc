@@ -1,5 +1,6 @@
 pub type Grid<T> = Vec<Vec<T>>;
 
+/// (r, c)
 pub type Point = (usize, usize);
 
 /// Checks if the position (r,c) + (dr,dc) would lead to out of range in the grid
@@ -50,11 +51,27 @@ pub enum Direction {
     Right,
     Down,
     Left,
+    RighUp,
+    RightDown,
+    LeftUp,
+    LeftDown,
 }
 
 impl Direction {
-    pub fn all() -> [Direction; 4] {
+    pub fn all_straight() -> [Direction; 4] {
         [
+            Direction::Right,
+            Direction::Down,
+            Direction::Left,
+            Direction::Up,
+        ]
+    }
+    pub fn all_diagonals() -> [Direction; 8] {
+        [
+            Direction::RighUp,
+            Direction::RightDown,
+            Direction::LeftUp,
+            Direction::LeftDown,
             Direction::Right,
             Direction::Down,
             Direction::Left,
@@ -67,6 +84,10 @@ impl Direction {
             Direction::Down => (1, 0),
             Direction::Right => (0, 1),
             Direction::Up => (-1, 0),
+            Direction::RighUp => (-1, 1),
+            Direction::RightDown => (1, 1),
+            Direction::LeftUp => (-1, -1),
+            Direction::LeftDown => (1, -1),
         }
     }
     pub fn rotate_counter_clockwise(&self) -> Direction {
@@ -75,6 +96,7 @@ impl Direction {
             Direction::Right => Direction::Up,
             Direction::Down => Direction::Right,
             Direction::Left => Direction::Down,
+            _ => todo!(),
         }
     }
     pub fn rotate_clockwise(&self) -> Direction {
@@ -83,6 +105,7 @@ impl Direction {
             Direction::Right => Direction::Down,
             Direction::Down => Direction::Left,
             Direction::Left => Direction::Up,
+            _ => todo!(),
         }
     }
 

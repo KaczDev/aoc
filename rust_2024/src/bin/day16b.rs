@@ -1,5 +1,5 @@
 use anyhow::Result;
-use rust_2024::utils::grid::{find_element, get_element, Direction, Grid, Point};
+use aoc_utils::grid::{find_element, get_element, Direction, Grid, Point};
 use std::{
     collections::{BinaryHeap, HashMap, HashSet, VecDeque},
     fs,
@@ -38,7 +38,7 @@ fn walk(grid: &Grid<char>, cur: Point, dir: Direction) -> usize {
     //add the path vec to state
     // store prev point in state and store the path in hashmap(point,vec) and we just update the
     // point to current after we get the vec from prev
-    let mut best_paths: HashMap<Point,VecDeque<Point>> = HashMap::new();
+    let mut best_paths: HashMap<Point, VecDeque<Point>> = HashMap::new();
     pq.push(State {
         p: cur,
         d: dir,

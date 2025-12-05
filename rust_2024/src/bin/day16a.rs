@@ -1,5 +1,5 @@
 use anyhow::Result;
-use rust_2024::utils::grid::{find_element, get_element, Direction, Grid, Point};
+use aoc_utils::grid::{find_element, get_element, Direction, Grid, Point};
 use std::{
     collections::{BinaryHeap, HashSet},
     fs,
