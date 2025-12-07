@@ -29,14 +29,41 @@ pub fn find_element<T: std::cmp::PartialEq + std::fmt::Debug>(grid: &Grid<T>, ne
     panic!("COULDNT FIND ELEMENT {:?}", needle);
 }
 
-/// Prints the grid in between newlines
-pub fn print_grid<T: std::fmt::Debug>(grid: &Grid<T>) {
+/// Prints the grid in between newlines with Debug trait
+pub fn print_grid_debug<T: std::fmt::Debug>(grid: &Grid<T>) {
     println!();
     for r in grid {
         for c in r {
             print!("{:?}", c);
         }
         println!();
+    }
+    println!();
+}
+
+/// Prints the grid in between newlines
+pub fn print_grid<T: std::fmt::Display>(grid: &Grid<T>) {
+    println!();
+    for r in grid {
+        for c in r {
+            print!("{}", c);
+        }
+        println!();
+    }
+    println!();
+}
+
+/// Prints the grid with rows and columns
+pub fn print_grid_with_rows<T: std::fmt::Display>(grid: &Grid<T>) {
+    println!();
+    let mut rc = 0;
+    for r in grid {
+        print!("{}\t", rc);
+        for c in r {
+            print!("{}", c);
+        }
+        println!();
+        rc += 1;
     }
     println!();
 }

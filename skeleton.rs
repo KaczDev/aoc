@@ -11,6 +11,14 @@ fn solve(file_name: &str) -> Result<usize> {
     Ok(res)
 }
 
+fn solve_2(file_name: &str) -> Result<usize> {
+    let mut res = 0;
+    let input: Input<char> = read_input(file_name)?;
+    println!("{:?}", input);
+
+    Ok(res)
+}
+
 fn read_input(file_name: &str) -> Result<Input<char>> {
     Ok(fs::read_to_string(file_name)?
         .lines()
@@ -20,9 +28,16 @@ fn read_input(file_name: &str) -> Result<Input<char>> {
 
 fn main() -> Result<()> {
     let files = ["./inputs/day12.test", "./inputs/day12.prod"];
+    println!("# Part 1");
     for file in files {
         let now = Instant::now();
         let res = solve(file)?;
+        println!("{}: {} in {}ms", file, res, now.elapsed().as_millis());
+    }
+    println!("# Part 2");
+    for file in files {
+        let now = Instant::now();
+        let res = solve_2(file)?;
         println!("{}: {} in {}ms", file, res, now.elapsed().as_millis());
     }
     Ok(())
