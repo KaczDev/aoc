@@ -47,9 +47,17 @@ fn main() -> Result<()> {
 mod tests {
     use super::*;
     #[test]
-    fn example() {
+    fn part_1() {
         let file = "./inputs/day12.test";
         let result = solve(file).unwrap();
+        let expected = 140;
+        assert_eq!(result, expected)
+    }
+
+    #[test]
+    fn part_2() {
+        let file = "./inputs/day12.test";
+        let result = solve_2(file).unwrap();
         let expected = 140;
         assert_eq!(result, expected)
     }
