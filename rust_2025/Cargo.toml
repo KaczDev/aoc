@@ -1,9 +1,10 @@
 [package]
 name = "rust_2025"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
 aoc_utils = { path = "../aoc_utils" }
 anyhow = "1.0.100"
 itertools = "0.14.0"
+rayon = "1.11.0"
