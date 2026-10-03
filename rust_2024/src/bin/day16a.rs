@@ -1,5 +1,5 @@
 use anyhow::Result;
-use aoc_utils::grid::{find_element, get_element, Direction, Grid, Point};
+use aoc_rs::grid::{find_element, get_element, Direction, Grid, Point};
 use std::{
     collections::{BinaryHeap, HashSet},
     fs,
