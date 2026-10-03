@@ -16,10 +16,10 @@ struct Cli {
     day: u32,
 
     /// Puzzle part
-    part: Part,
+    part: Option<Part>,
 }
 
-#[derive(ValueEnum, Clone, Debug)]
+#[derive(ValueEnum, Clone, Debug, Copy)]
 enum Part {
     A,
     B,
@@ -42,20 +42,33 @@ fn run(cli: &Cli, solution: Box<dyn Solution>) -> Result<()> {
         ));
     }
     for file in files {
-        let now = Instant::now();
-        let res = match cli.part {
-            Part::A => solution.part_a(&file),
-            Part::B => solution.part_b(&file),
-        };
-        let time_passed = now.elapsed().as_millis();
-        match res {
-            Ok(res) => {
-                println!("{}: {} in {}ms", file, res, time_passed);
+        match cli.part {
+            Some(part) => match part {
+                Part::A => wrapper(|input| solution.part_a(input), part, &file),
+                Part::B => wrapper(|input| solution.part_b(input), part, &file),
+            },
+            None => {
+                wrapper(|input| solution.part_a(input), Part::A, &file);
+                wrapper(|input| solution.part_b(input), Part::B, &file);
             }
-            Err(err) => println!("{}", err),
-        }
+        };
     }
     Ok(())
+}
+
+fn wrapper<F>(sol: F, part: Part, file_name: &str)
+where
+    F: FnOnce(&str) -> Result<String>,
+{
+    let now = Instant::now();
+    let res = sol(file_name);
+    match res {
+        Ok(res) => {
+            let time_passed = now.elapsed().as_millis();
+            println!("Part {:?} - {}: {} in {}ms", part, file_name, res, time_passed);
+        }
+        Err(err) => println!("{}", err),
+    };
 }
 
 fn find_files(year: u32, day: u32) -> Vec<String> {
