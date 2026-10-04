@@ -1,12 +1,11 @@
+use crate::Solution;
 use anyhow::Result;
 use itertools::Itertools;
 use std::{
     collections::{HashMap, HashSet},
-    f64,
     fmt::Display,
     fs,
     str::FromStr,
-    time::Instant,
 };
 
 type Input<T> = Vec<T>;
@@ -61,7 +60,7 @@ fn find_closest_pair(
     for i in 0..input.len() {
         let p = input.get(i).expect("Should never happen");
         for j in 0..input.len() {
-            if i==j{
+            if i == j {
                 continue;
             }
             let q = input.get(j).expect("Should never happen");
@@ -123,87 +122,6 @@ fn connect_pairs(
     }
 }
 
-fn solve(file_name: &str, max_connections: usize) -> Result<usize> {
-    let input: Input<Position> = read_input(file_name)?;
-    // IT's AN UNDIRECTED GRAPH / DSU
-    // Union Find
-
-    //map to connect a Position to a certain circuit
-    let mut lookup: HashMap<Position, usize> = HashMap::new();
-    let mut connections: HashSet<(Position, Position)> = HashSet::new();
-    let mut circuits: Vec<HashSet<Position>> = vec![];
-    for x in &input {
-        let mut h = HashSet::new();
-        h.insert(*x);
-        circuits.push(h);
-        lookup.insert(*x, circuits.len() - 1);
-    }
-    let mut conns = 0;
-    while conns < max_connections {
-        //1. Find the closest pair
-        let (p_idx, q_idx) = find_closest_pair(&input, &connections);
-        //2. Connect the closest pair
-        //  2a. If they are in the same circuit, it's still a connection
-        if p_idx != usize::MAX && q_idx != usize::MAX {
-            connect_pairs(
-                (p_idx, q_idx),
-                &input,
-                &mut lookup,
-                &mut circuits,
-                &mut connections,
-            );
-            conns += 1;
-        }
-    }
-    circuits.sort_by(|a, b| b.len().cmp(&a.len()));
-    let res = circuits
-        .into_iter()
-        .take(3)
-        .map(|c| c.len())
-        .reduce(|acc, e| {
-            if acc == 0 {
-                return 1 * e;
-            }
-            acc * e
-        })
-        .unwrap();
-    Ok(res)
-}
-
-fn solve_2(file_name: &str) -> Result<isize> {
-    let input: Input<Position> = read_input(file_name)?;
-
-    //map to connect a Position to a certain circuit
-    let mut lookup: HashMap<Position, usize> = HashMap::new();
-    let mut connections: HashSet<(Position, Position)> = HashSet::new();
-    let mut circuits: Vec<HashSet<Position>> = vec![];
-    let mut last_pair: (Position, Position) = (input[0], input[1]);
-    for x in &input {
-        let mut h = HashSet::new();
-        h.insert(*x);
-        circuits.push(h);
-        lookup.insert(*x, circuits.len() - 1);
-    }
-    while circuits.len() != 1 {
-        //1. Find the closest pair
-        let (p_idx, q_idx) = find_closest_pair(&input, &connections);
-        //2. Connect the closest pair
-        //  2a. If they are in the same circuit, it's still a connection
-        if p_idx != usize::MAX && q_idx != usize::MAX {
-            last_pair = (input[p_idx], input[q_idx]);
-            connect_pairs(
-                (p_idx, q_idx),
-                &input,
-                &mut lookup,
-                &mut circuits,
-                &mut connections,
-            );
-        }
-    }
-    let res = last_pair.0.x * last_pair.1.x;
-    Ok(res)
-}
-
 fn read_input(file_name: &str) -> Result<Input<Position>> {
     Ok(fs::read_to_string(file_name)?
         .lines()
@@ -215,21 +133,97 @@ fn read_input(file_name: &str) -> Result<Input<Position>> {
         .collect())
 }
 
-fn main() -> Result<()> {
-    let files = [("./inputs/day8.test", 10), ("./inputs/day8.prod", 1000)];
-    println!("# Part 1");
-    for (file, connections) in files {
-        let now = Instant::now();
-        let res = solve(file, connections)?;
-        println!("{}: {} in {}ms", file, res, now.elapsed().as_millis());
+pub struct Day8;
+
+impl Solution for Day8 {
+    fn part_a(&self, file_name: &str) -> Result<String> {
+        let max_connections: usize = get_max_connections(file_name);
+        let input: Input<Position> = read_input(file_name)?;
+        // IT's AN UNDIRECTED GRAPH / DSU
+        // Union Find
+
+        //map to connect a Position to a certain circuit
+        let mut lookup: HashMap<Position, usize> = HashMap::new();
+        let mut connections: HashSet<(Position, Position)> = HashSet::new();
+        let mut circuits: Vec<HashSet<Position>> = vec![];
+        for x in &input {
+            let mut h = HashSet::new();
+            h.insert(*x);
+            circuits.push(h);
+            lookup.insert(*x, circuits.len() - 1);
+        }
+        let mut conns = 0;
+        while conns < max_connections {
+            //1. Find the closest pair
+            let (p_idx, q_idx) = find_closest_pair(&input, &connections);
+            //2. Connect the closest pair
+            //  2a. If they are in the same circuit, it's still a connection
+            if p_idx != usize::MAX && q_idx != usize::MAX {
+                connect_pairs(
+                    (p_idx, q_idx),
+                    &input,
+                    &mut lookup,
+                    &mut circuits,
+                    &mut connections,
+                );
+                conns += 1;
+            }
+        }
+        circuits.sort_by(|a, b| b.len().cmp(&a.len()));
+        let res = circuits
+            .into_iter()
+            .take(3)
+            .map(|c| c.len())
+            .reduce(|acc, e| {
+                if acc == 0 {
+                    return 1 * e;
+                }
+                acc * e
+            })
+            .unwrap();
+        Ok(format!("{}", res))
     }
-    println!("# Part 2");
-    for (file, _) in files {
-        let now = Instant::now();
-        let res = solve_2(file)?;
-        println!("{}: {} in {}ms", file, res, now.elapsed().as_millis());
+
+    fn part_b(&self, file_name: &str) -> Result<String> {
+        let input: Input<Position> = read_input(file_name)?;
+
+        //map to connect a Position to a certain circuit
+        let mut lookup: HashMap<Position, usize> = HashMap::new();
+        let mut connections: HashSet<(Position, Position)> = HashSet::new();
+        let mut circuits: Vec<HashSet<Position>> = vec![];
+        let mut last_pair: (Position, Position) = (input[0], input[1]);
+        for x in &input {
+            let mut h = HashSet::new();
+            h.insert(*x);
+            circuits.push(h);
+            lookup.insert(*x, circuits.len() - 1);
+        }
+        while circuits.len() != 1 {
+            //1. Find the closest pair
+            let (p_idx, q_idx) = find_closest_pair(&input, &connections);
+            //2. Connect the closest pair
+            //  2a. If they are in the same circuit, it's still a connection
+            if p_idx != usize::MAX && q_idx != usize::MAX {
+                last_pair = (input[p_idx], input[q_idx]);
+                connect_pairs(
+                    (p_idx, q_idx),
+                    &input,
+                    &mut lookup,
+                    &mut circuits,
+                    &mut connections,
+                );
+            }
+        }
+        let res = last_pair.0.x * last_pair.1.x;
+        Ok(format!("{}", res))
     }
-    Ok(())
+}
+
+fn get_max_connections(file_name: &str) -> usize {
+    if file_name.contains("test") {
+        return 10;
+    }
+    1000
 }
 
 #[cfg(test)]
@@ -237,16 +231,18 @@ mod tests {
     use super::*;
     #[test]
     fn part_1() {
+        let d8 = Day8;
         let file = "./inputs/day8.test";
-        let result = solve(file, 10).unwrap();
-        let expected = 40;
+        let result = d8.part_a(file).unwrap();
+        let expected = String::from("40");
         assert_eq!(result, expected)
     }
     #[test]
     fn part_2() {
+        let d8 = Day8;
         let file = "./inputs/day8.test";
-        let result = solve_2(file).unwrap();
-        let expected = 25272;
+        let result = d8.part_b(file).unwrap();
+        let expected = String::from("25272");
         assert_eq!(result, expected)
     }
 }

@@ -1,10 +1,10 @@
+use crate::Solution;
+use crate::reader::read_lines;
 use anyhow::Result;
-use aoc_utils::reader::read_lines;
 use itertools::Itertools;
 use std::{
     collections::{HashSet, VecDeque},
     str::FromStr,
-    time::Instant,
 };
 
 type Input<T> = Vec<T>;
@@ -62,41 +62,6 @@ fn bfs(machine: &Machine) -> usize {
     presses
 }
 
-fn solve(file_name: &str) -> Result<usize> {
-    let mut res = 0;
-    let input: Input<Machine> = read_input(file_name)?;
-    for machine in &input {
-        res += bfs(machine)
-    }
-
-    Ok(res)
-}
-
-fn solve_2(file_name: &str) -> Result<usize> {
-    let mut res = 0;
-    let input: Input<Machine> = read_input(file_name)?;
-    println!("{:?}", input);
-
-    Ok(res)
-}
-
-fn main() -> Result<()> {
-    let files = ["./inputs/day10.test", "./inputs/day10.prod"];
-    println!("# Part 1");
-    for file in files {
-        let now = Instant::now();
-        let res = solve(file)?;
-        println!("{}: {} in {}ms", file, res, now.elapsed().as_millis());
-    }
-    println!("# Part 2");
-    for file in files {
-        let now = Instant::now();
-        let res = solve_2(file)?;
-        println!("{}: {} in {}ms", file, res, now.elapsed().as_millis());
-    }
-    Ok(())
-}
-
 impl FromStr for Machine {
     type Err = anyhow::Error;
 
@@ -150,22 +115,47 @@ fn read_input(file_name: &str) -> Result<Input<Machine>> {
         .collect())
 }
 
+pub struct Day10;
+
+impl Solution for Day10 {
+    fn part_a(&self, file_name: &str) -> Result<String> {
+        let mut res = 0;
+        let input: Input<Machine> = read_input(file_name)?;
+        for machine in &input {
+            res += bfs(machine)
+        }
+
+        Ok(format!("{}", res))
+    }
+
+    fn part_b(&self, _file_name: &str) -> Result<String> {
+        unimplemented!()
+        // let mut res = 0;
+        // let input: Input<Machine> = read_input(file_name)?;
+        // println!("{:?}", input);
+
+        // Ok(format!("{}", res))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     #[test]
     fn part_1() {
+        let d10 = Day10;
         let file = "./inputs/day10.test";
-        let result = solve(file).unwrap();
-        let expected = 7;
+        let result = d10.part_a(file).unwrap();
+        let expected = String::from("7");
         assert_eq!(result, expected)
     }
 
     #[test]
     fn part_2() {
+        let d10 = Day10;
         let file = "./inputs/day10.test";
-        let result = solve_2(file).unwrap();
-        let expected = 33;
+        let result = d10.part_b(file).unwrap();
+        let expected = String::from("33");
         assert_eq!(result, expected)
     }
 }

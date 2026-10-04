@@ -1,6 +1,7 @@
+use crate::Solution;
 use anyhow::Result;
 use itertools::Itertools;
-use std::{cmp, fs, ops::RangeInclusive, time::Instant};
+use std::{cmp, fs, ops::RangeInclusive};
 
 type Input<T> = Vec<T>;
 
@@ -22,41 +23,6 @@ fn merge_intervals(intervals: &mut Vec<RangeInclusive<usize>>) -> Vec<RangeInclu
         }
     }
     merged_intervals
-}
-
-fn solve_1(file_name: &str) -> Result<usize> {
-    let input: Input<String> = read_input(file_name)?;
-    let mut intervals = parse_intervals(&input[0]);
-    let intervals = merge_intervals(&mut intervals);
-    let res = input[1]
-        .lines()
-        .map(|id| id.parse::<usize>().expect("Couldn't parse {id}"))
-        .filter(|id| {
-            for itrv in &intervals {
-                if itrv.contains(id) {
-                    return true;
-                }
-            }
-            false
-        })
-        .count();
-
-    Ok(res)
-}
-fn solve_2(file_name: &str) -> Result<usize> {
-    let input: Input<String> = read_input(file_name)?;
-    let mut intervals = parse_intervals(&input[0]);
-    let merged = merge_intervals(&mut intervals);
-    let res = merged
-        .into_iter()
-        .map(|itrv| {
-            let start = itrv.start();
-            let end = itrv.end();
-            end - start + 1
-        })
-        .sum();
-
-    Ok(res)
 }
 
 fn parse_intervals(input: &String) -> Vec<RangeInclusive<usize>> {
@@ -84,21 +50,44 @@ fn read_input(file_name: &str) -> Result<Input<String>> {
         .collect_vec())
 }
 
-fn main() -> Result<()> {
-    let files = ["./inputs/day5.test", "./inputs/day5.prod"];
-    println!("# Part 1");
-    for file in files {
-        let now = Instant::now();
-        let res = solve_1(file)?;
-        println!("{}: {} in {}ms", file, res, now.elapsed().as_millis());
+pub struct Day5;
+
+impl Solution for Day5 {
+    fn part_a(&self, file_name: &str) -> Result<String> {
+        let input: Input<String> = read_input(file_name)?;
+        let mut intervals = parse_intervals(&input[0]);
+        let intervals = merge_intervals(&mut intervals);
+        let res = input[1]
+            .lines()
+            .map(|id| id.parse::<usize>().expect("Couldn't parse {id}"))
+            .filter(|id| {
+                for itrv in &intervals {
+                    if itrv.contains(id) {
+                        return true;
+                    }
+                }
+                false
+            })
+            .count();
+
+        Ok(format!("{}", res))
     }
-    println!("# Part 2");
-    for file in files {
-        let now = Instant::now();
-        let res = solve_2(file)?;
-        println!("{}: {} in {}ms", file, res, now.elapsed().as_millis());
+
+    fn part_b(&self, file_name: &str) -> Result<String> {
+        let input: Input<String> = read_input(file_name)?;
+        let mut intervals = parse_intervals(&input[0]);
+        let merged = merge_intervals(&mut intervals);
+        let res: usize = merged
+            .into_iter()
+            .map(|itrv| {
+                let start = itrv.start();
+                let end = itrv.end();
+                end - start + 1
+            })
+            .sum();
+
+        Ok(format!("{}", res))
     }
-    Ok(())
 }
 
 #[cfg(test)]
@@ -106,16 +95,18 @@ mod tests {
     use super::*;
     #[test]
     fn test_part1() {
+        let d = Day5;
         let file = "./inputs/day5.test";
-        let result = solve_1(file).unwrap();
-        let expected = 3;
+        let result = d.part_a(file).unwrap();
+        let expected = String::from("3");
         assert_eq!(result, expected)
     }
     #[test]
     fn test_part2() {
+        let d = Day5;
         let file = "./inputs/day5.test";
-        let result = solve_2(file).unwrap();
-        let expected = 14;
+        let result = d.part_b(file).unwrap();
+        let expected = String::from("14");
         assert_eq!(result, expected)
     }
 }

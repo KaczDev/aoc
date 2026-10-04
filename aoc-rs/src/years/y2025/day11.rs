@@ -1,7 +1,8 @@
+use crate::Solution;
 use anyhow::Result;
 use rayon::prelude::*;
 use std::collections::HashMap;
-use std::{collections::HashSet, time::Instant};
+use std::collections::HashSet;
 
 type Input = HashMap<String, HashSet<String>>;
 
@@ -22,13 +23,6 @@ fn walk(cur: &String, input: &Input) -> usize {
         sum += walk(out, input);
     }
     return sum;
-}
-
-fn solve(file_name: &str) -> Result<usize> {
-    let input: Input = read_input(file_name)?;
-    let res = walk(&String::from("you"), &input);
-
-    Ok(res)
 }
 
 fn walk_2(
@@ -61,28 +55,10 @@ fn walk_2(
     cache.insert(key, sum);
     sum
 }
-fn solve_2(file_name: &str) -> Result<usize> {
-    let input: Input = read_input(file_name)?;
-    let starting_branches: Vec<&String> = input
-        .get("svr")
-        .expect("Input doesn't have 'svr' in it!")
-        .iter()
-        .collect();
-
-    let all_paths: usize = starting_branches
-        .par_iter()
-        .map(|branch| {
-            // cache: (node, has_dac, has_fft) -> path count
-            let mut cache: HashMap<(String, bool, bool), usize> = HashMap::new();
-            walk_2(branch, &input, false, false, &mut cache)
-        })
-        .sum();
-    Ok(all_paths)
-}
 
 fn read_input(file_name: &str) -> Result<Input> {
     let mut input = HashMap::new();
-    aoc_utils::reader::read_lines(file_name)?
+    crate::reader::read_lines(file_name)?
         .map_while(Result::ok)
         .for_each(|line| {
             let (device_name, outs) = parse_input_line(&line);
@@ -91,22 +67,33 @@ fn read_input(file_name: &str) -> Result<Input> {
     Ok(input)
 }
 
-fn main() -> Result<()> {
-    let files = ["./inputs/day11.test", "./inputs/day11.prod"];
-    println!("# Part 1");
-    for file in files {
-        let now = Instant::now();
-        let res = solve(file)?;
-        println!("{}: {} in {}ms", file, res, now.elapsed().as_millis());
+pub struct Day11;
+
+impl Solution for Day11 {
+    fn part_a(&self, file_name: &str) -> Result<String> {
+        let input: Input = read_input(file_name)?;
+        let res = walk(&String::from("you"), &input);
+
+        Ok(format!("{}", res))
     }
-    let files = ["./inputs/day11.test2", "./inputs/day11.prod"];
-    println!("# Part 2");
-    for file in files {
-        let now = Instant::now();
-        let res = solve_2(file)?;
-        println!("{}: {} in {}ms", file, res, now.elapsed().as_millis());
+
+    fn part_b(&self, file_name: &str) -> Result<String> {
+        let input: Input = read_input(file_name)?;
+        let starting_branches: Vec<&String> = input
+            .get("svr")
+            .expect("Input doesn't have 'svr' in it!")
+            .iter()
+            .collect();
+        let all_paths: usize = starting_branches
+            .par_iter()
+            .map(|branch| {
+                // cache: (node, has_dac, has_fft) -> path count
+                let mut cache: HashMap<(String, bool, bool), usize> = HashMap::new();
+                walk_2(branch, &input, false, false, &mut cache)
+            })
+            .sum();
+        Ok(format!("{}", all_paths))
     }
-    Ok(())
 }
 
 #[cfg(test)]
@@ -114,17 +101,19 @@ mod tests {
     use super::*;
     #[test]
     fn part_1() {
-        let file = "./inputs/day11.test";
-        let result = solve(file).unwrap();
-        let expected = 5;
+        let d11 = Day11;
+        let file = "./inpures/day11.test";
+        let result = d11.part_a(file).unwrap();
+        let expected = String::from("5");
         assert_eq!(result, expected)
     }
 
     #[test]
     fn part_2() {
+        let d11 = Day11;
         let file = "./inputs/day11.test2";
-        let result = solve_2(file).unwrap();
-        let expected = 2;
+        let result = d11.part_b(file).unwrap();
+        let expected = String::from("2");
         assert_eq!(result, expected)
     }
 }

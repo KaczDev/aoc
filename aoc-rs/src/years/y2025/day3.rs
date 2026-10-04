@@ -1,5 +1,6 @@
+use crate::Solution;
 use anyhow::Result;
-use std::{fs, time::Instant};
+use std::fs;
 
 type Input<T> = Vec<Vec<T>>;
 
@@ -7,8 +8,6 @@ fn max_joltage(bank: &Vec<usize>, num_of_digits: usize) -> usize {
     if num_of_digits == 0 {
         return 0;
     }
-    // let (left, _right) = bank.split_at(bank.len() - num_of_digits as usize + 1);
-    // let d = left.iter().max().expect("Couldn't find max in {left}");
     let d = bank
         .iter()
         .take(bank.len() - num_of_digits + 1)
@@ -18,12 +17,6 @@ fn max_joltage(bank: &Vec<usize>, num_of_digits: usize) -> usize {
     let (_left, right) = bank.split_at(idx + 1);
 
     d * (10_usize.pow(num_of_digits as u32 - 1)) + max_joltage(&right.to_vec(), num_of_digits - 1)
-}
-
-fn solve(file_name: &str, digits: usize) -> Result<usize> {
-    let input: Input<usize> = read_input(file_name)?;
-    let res = input.iter().map(|bank| max_joltage(bank, digits)).sum();
-    Ok(res)
 }
 
 fn read_input(file_name: &str) -> Result<Input<usize>> {
@@ -38,21 +31,22 @@ fn read_input(file_name: &str) -> Result<Input<usize>> {
         .collect())
 }
 
-fn main() -> Result<()> {
-    let files = ["./inputs/day3.test", "./inputs/day3.prod"];
-    println!("Part 1");
-    for file in files {
-        let now = Instant::now();
-        let res = solve(file, 2)?;
-        println!("{}: {} in {}ms", file, res, now.elapsed().as_millis());
+pub struct Day3;
+
+impl Solution for Day3 {
+    fn part_a(&self, file_name: &str) -> Result<String> {
+        let digits = 2;
+        let input: Input<usize> = read_input(file_name)?;
+        let res: usize = input.iter().map(|bank| max_joltage(bank, digits)).sum();
+        Ok(format!("{}", res))
     }
-    println!("Part 2");
-    for file in files {
-        let now = Instant::now();
-        let res = solve(file, 12)?;
-        println!("{}: {} in {}ms", file, res, now.elapsed().as_millis());
+
+    fn part_b(&self, file_name: &str) -> Result<String> {
+        let digits = 12;
+        let input: Input<usize> = read_input(file_name)?;
+        let res: usize = input.iter().map(|bank| max_joltage(bank, digits)).sum();
+        Ok(format!("{}", res))
     }
-    Ok(())
 }
 
 #[cfg(test)]
@@ -60,16 +54,18 @@ mod tests {
     use super::*;
     #[test]
     fn test_part1() {
+        let d3 = Day3;
         let file = "./inputs/day3.test";
-        let result = solve(file,2).unwrap();
-        let expected = 357;
+        let result = d3.part_a(file).unwrap();
+        let expected = String::from("357");
         assert_eq!(result, expected)
     }
     #[test]
     fn test_part2() {
+        let d3 = Day3;
         let file = "./inputs/day3.test";
-        let result = solve(file,12).unwrap();
-        let expected = 3121910778619;
+        let result = d3.part_b(file).unwrap();
+        let expected = String::from("3121910778619");
         assert_eq!(result, expected)
     }
 }
