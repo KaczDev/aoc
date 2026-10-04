@@ -72,7 +72,7 @@ where
 }
 
 fn find_files(year: u32, day: u32) -> Vec<String> {
-    let search_string = format!("./inputs/{year}/day{day}*");
+    let search_string = format!("./inputs/{year}/day{day}[!0-9]*");
     glob(&search_string)
         .expect("glob search string is invalid")
         .filter_map(Result::ok)
